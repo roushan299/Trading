@@ -1,4 +1,4 @@
-package com.roushan.trading;
+package com.roushan.trading.service;
 
 
 import com.roushan.trading.model.User;
