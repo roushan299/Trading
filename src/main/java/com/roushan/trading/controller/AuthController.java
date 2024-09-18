@@ -7,6 +7,7 @@ import com.roushan.trading.config.JwtProvider;
 import com.roushan.trading.model.User;
 import com.roushan.trading.repository.UserRepository;
 import com.roushan.trading.response.AuthResponse;
+import com.roushan.trading.service.EmailService;
 import com.roushan.trading.service.TwoFactorOTPService;
 import com.roushan.trading.util.OtpUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,8 @@ public class AuthController {
     private CustomUserDetailsService customUserDetailsService;
     @Autowired
     private TwoFactorOTPService twoFactorOTPService;
+    @Autowired
+    private EmailService emailService;
 
 
     @PostMapping("/signup")
@@ -87,6 +90,7 @@ public class AuthController {
             }
 
             TwoFactorOTP newTwoFactorOtp = this.twoFactorOTPService.createTwoFactorOTP(authUser, otp, jwtToken);
+            this.emailService.sendVerificationOtpMail(email, otp);
             res.setSession(newTwoFactorOtp.getId());
             return new ResponseEntity<AuthResponse>(res, HttpStatus.CREATED);
         }
@@ -114,6 +118,9 @@ public class AuthController {
 
         return new UsernamePasswordAuthenticationToken(username, password, userDetails.getAuthorities());
     }
+
+
+
 
 
 }
