@@ -18,10 +18,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -120,7 +117,19 @@ public class AuthController {
     }
 
 
+    @PostMapping("/two-facror/otp/{otp}")
+    public ResponseEntity<AuthResponse> verifySignInOTP(@PathVariable("otp") String otp, @RequestParam String id) throws Exception {
+        TwoFactorOTP twoFactorOTP = this.twoFactorOTPService.findById(id);
 
+        if(twoFactorOTP!=null && this.twoFactorOTPService.verifyTwoFactorOTP(twoFactorOTP, otp)){
+            AuthResponse authResponse = new AuthResponse();
+            authResponse.setMessage("Two factor authentication verified");
+            authResponse.setTwoFactorAuthEnabled(true);
+            authResponse.setJwtToken(twoFactorOTP.getJwt());
+            return new ResponseEntity<AuthResponse>(authResponse, HttpStatus.OK);
+        }
+        throw new Exception("Invalid OTP");
+    }
 
 
 }
