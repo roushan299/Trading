@@ -96,6 +96,12 @@ public class OrderServiceImpl implements OrderService {
         Order savedOrder = this.orderRepository.save(order);
         //TODO
         // create asset as asset is purchased by the user
+        Asset oldAsset = this.assetService.findAssetByUserIdAndCoinId(order.getUser().getId(), order.getOrderItem().getCoin().getId());
+        if(oldAsset==null){
+            oldAsset = this.assetService.createAsset(user, coin, quantity);
+        }else{
+            oldAsset = this.assetService.updateAsset(oldAsset.getId(), quantity);
+        }
         return savedOrder;
     }
 
@@ -106,24 +112,26 @@ public class OrderServiceImpl implements OrderService {
         if(quantity<=0){
             throw new Exception("Quantity should be greater than 0");
         }
-        double buyPrice = assetToSell.getPrice();
-        double sellPrice = coin.getCurrentPrice();
-        OrderItem orderItem = createOrderItem(coin, quantity, buyPrice, sellPrice);
-        Order order = this.createOrder(user, orderItem, ORDER_TYPE.SELL);
-        orderItem.setOrder(order);
-        order.setStatus(ORDER_STATUS.SUCCESS);
-        order.setOrderType(ORDER_TYPE.SELL);
-        Order savedOrder = this.orderRepository.save(order);
-        return savedOrder;
-        if(assetToSell.getQuantity()>= quantity){
-            this.walletService.payOrderPayment(order, user);
-            Asset updatedAsset = this.assetService.updateAsset(assetToSell.getId(), -quantity);
-            if(updatedAsset.getQuantity()*coin.getCurrentPrice()<=1){
-                this.assetService.deleteAsset(updatedAsset.getId());
+        Asset assetToSell = this.assetService.findAssetByUserIdAndCoinId(user.getId(), coin.getId());
+        if(assetToSell!=null){
+            double buyPrice = assetToSell.getBuyPrice();
+            double sellPrice = coin.getCurrentPrice();
+            OrderItem orderItem = createOrderItem(coin, quantity, buyPrice, sellPrice);
+            Order order = this.createOrder(user, orderItem, ORDER_TYPE.SELL);
+            orderItem.setOrder(order);
+            order.setStatus(ORDER_STATUS.SUCCESS);
+            order.setOrderType(ORDER_TYPE.SELL);
+            Order savedOrder = this.orderRepository.save(order);
+            if(assetToSell.getQuantity() >= quantity){
+                this.walletService.payOrderPayment(order, user);
+                Asset updatedAsset = this.assetService.updateAsset(assetToSell.getId(), -quantity);
+                if(updatedAsset.getQuantity()*coin.getCurrentPrice()<=1){
+                    this.assetService.deleteAsset(updatedAsset.getId());
+                }
+                return savedOrder;
             }
-            return savedOrder;
+            throw new Exception("Insufficient quantity of asset you holds");
         }
-        throw new Exception("Insufficient quantity of asset you holds");
-
+        throw new Exception("Asset not found");
     }
 }

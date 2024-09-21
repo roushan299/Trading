@@ -47,7 +47,14 @@ public class WalletController {
         Order order = this.orderService.getOrderById(orderId);
         Wallet wallet = this.walletService.payOrderPayment(order, user);
         return new ResponseEntity<>(wallet, HttpStatus.ACCEPTED);
+    }
 
+    @PutMapping("/order/{orderId}/pay")
+    public ResponseEntity<Wallet> payOrderPayment(@RequestHeader(JwtConstant.JWT_HEADER) String jwt, @PathVariable("orderId") Long orderId) throws Exception {
+        User user = this.userService.findUserProfileByJwt(jwt);
+        Order order = this.orderService.getOrderById(orderId);
+        Wallet wallet = this.walletService.payOrderPayment(order, user);
+        return new ResponseEntity<Wallet>(wallet, HttpStatus.ACCEPTED);
     }
 
 }
