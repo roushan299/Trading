@@ -94,8 +94,6 @@ public class OrderServiceImpl implements OrderService {
         order.setStatus(ORDER_STATUS.SUCCESS);
         order.setOrderType(ORDER_TYPE.BUY);
         Order savedOrder = this.orderRepository.save(order);
-        //TODO
-        // create asset as asset is purchased by the user
         Asset oldAsset = this.assetService.findAssetByUserIdAndCoinId(order.getUser().getId(), order.getOrderItem().getCoin().getId());
         if(oldAsset==null){
             oldAsset = this.assetService.createAsset(user, coin, quantity);

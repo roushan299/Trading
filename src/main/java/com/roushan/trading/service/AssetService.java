@@ -19,7 +19,6 @@ public interface AssetService {
 
     Asset updateAsset(Long assetId, double quantity) throws Exception;
 
-    Asset findAssetByUserIdAndCoinId(Long userId, Long coinId);
 
     Asset findAssetByUserIdAndCoinId(Long userId, String coinId);
 
