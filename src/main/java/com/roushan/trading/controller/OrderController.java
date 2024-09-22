@@ -37,7 +37,7 @@ public class OrderController {
     @PostMapping("/pay")
     public ResponseEntity<Order> payOrderPayment(@RequestHeader(JwtConstant.JWT_HEADER) String jwt, @RequestBody CreateOrderRequest createOrderRequest) throws Exception {
         User user = this.userService.findUserProfileByJwt(jwt);
-        Coin coin = this.coinService.findBYId(createOrderRequest.getCoinId());
+        Coin coin = this.coinService.findById(createOrderRequest.getCoinId());
         Order order = this.orderService.processOrder(coin, createOrderRequest.getQuantity(), createOrderRequest.getOrderType(), user);
         return ResponseEntity.ok(order);
     }
