@@ -1,11 +1,9 @@
 package com.roushan.trading.controller;
 
 import com.roushan.trading.config.JwtConstant;
-import com.roushan.trading.model.Order;
-import com.roushan.trading.model.User;
-import com.roushan.trading.model.Wallet;
-import com.roushan.trading.model.WalletTransaction;
+import com.roushan.trading.model.*;
 import com.roushan.trading.service.OrderService;
+import com.roushan.trading.service.PaymentService;
 import com.roushan.trading.service.UserService;
 import com.roushan.trading.service.WalletService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +23,9 @@ public class WalletController {
 
     @Autowired
     private OrderService orderService;
+
+    @Autowired
+    private PaymentService paymentService;
 
     @GetMapping
     public ResponseEntity<Wallet> getUserWallet(@RequestHeader(JwtConstant.JWT_HEADER) String jwt) throws Exception {
@@ -54,6 +55,18 @@ public class WalletController {
         User user = this.userService.findUserProfileByJwt(jwt);
         Order order = this.orderService.getOrderById(orderId);
         Wallet wallet = this.walletService.payOrderPayment(order, user);
+        return new ResponseEntity<Wallet>(wallet, HttpStatus.ACCEPTED);
+    }
+
+    @PutMapping("/deposit")
+    public ResponseEntity<Wallet> addBalanceToWallet(@RequestHeader(JwtConstant.JWT_HEADER) String jwt, @RequestParam(name = "order_id") Long orderId, @RequestParam(name = "payment_id") String paymentId) throws Exception {
+        User user = this.userService.findUserProfileByJwt(jwt);
+        Wallet wallet = this.walletService.getUserWallet(user);
+        PaymentOrder paymentOrder = this.paymentService.getPaymentOrderById(orderId);
+        Boolean status = this.paymentService.proceedPaymentOrder(paymentOrder, paymentId);
+        if(status){
+            wallet = this.walletService.addBalanceToWallet(wallet, paymentOrder.getAmount());
+        }
         return new ResponseEntity<Wallet>(wallet, HttpStatus.ACCEPTED);
     }
 
