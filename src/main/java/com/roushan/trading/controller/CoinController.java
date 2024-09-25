@@ -20,8 +20,9 @@ public class CoinController {
     private ObjectMapper objectMapper;
 
     @GetMapping
-    public ResponseEntity<List<Coin>> getCoinList(@RequestParam("Page") int page) throws Exception {
-        List<Coin> coinList = this.coinService.getCoinList(page);
+    public ResponseEntity<List<Coin>> getCoinList(@RequestParam(required = false, name = "page") Integer page) throws Exception {
+        int actualPage = (page != null) ? page.intValue() : 1;
+        List<Coin> coinList = this.coinService.getCoinList(actualPage);
         return new ResponseEntity<List<Coin>>(coinList, HttpStatus.ACCEPTED);
     }
 
