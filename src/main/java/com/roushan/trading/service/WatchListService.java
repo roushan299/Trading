@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 @Service
 public interface WatchListService {
 
-    WatchList findUserWatchList(Long userId) throws Exception;
+    WatchList findUserWatchList(User user) throws Exception;
 
     WatchList createWatchList(User user);
 

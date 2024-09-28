@@ -28,7 +28,7 @@ public class WatchListController {
     @GetMapping("/user")
     public ResponseEntity<WatchList> getUserWatchList(@RequestHeader(JwtConstant.JWT_HEADER) String jwt) throws Exception {
         User user = this.userService.findUserProfileByJwt(jwt);
-        WatchList watchList = this.watchListService.findUserWatchList(user.getId());
+        WatchList watchList = this.watchListService.findUserWatchList(user);
         return new ResponseEntity<WatchList>(watchList, HttpStatus.OK);
     }
 

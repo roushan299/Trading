@@ -2,6 +2,7 @@ package com.roushan.trading.controller;
 
 
 import com.roushan.trading.model.TwoFactorOTP;
+import com.roushan.trading.model.WatchList;
 import com.roushan.trading.service.CustomUserDetailsService;
 import com.roushan.trading.config.JwtProvider;
 import com.roushan.trading.model.User;
@@ -9,6 +10,7 @@ import com.roushan.trading.repository.UserRepository;
 import com.roushan.trading.response.AuthResponse;
 import com.roushan.trading.service.EmailService;
 import com.roushan.trading.service.TwoFactorOTPService;
+import com.roushan.trading.service.WatchListService;
 import com.roushan.trading.util.OtpUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -32,6 +34,8 @@ public class AuthController {
     private TwoFactorOTPService twoFactorOTPService;
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private WatchListService watchListService;
 
 
     @PostMapping("/signup")
@@ -49,6 +53,7 @@ public class AuthController {
         newUser.setPassword(user.getPassword());
 
         User savedUser = this.userRepository.save(newUser);
+        WatchList watchList = this.watchListService.createWatchList(user);
 
         Authentication auth = new UsernamePasswordAuthenticationToken(savedUser.getEmail(), savedUser.getPassword());
         SecurityContextHolder.getContext().setAuthentication(auth);

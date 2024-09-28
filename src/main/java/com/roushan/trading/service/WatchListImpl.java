@@ -16,10 +16,10 @@ public class WatchListImpl implements WatchListService{
     private WatchListRepository watchListRepository;
 
     @Override
-    public WatchList findUserWatchList(Long userId) throws Exception {
-       WatchList watchList = this.watchListRepository.findByUserId(userId);
+    public WatchList findUserWatchList(User user) throws Exception {
+       WatchList watchList = this.watchListRepository.findByUserId(user.getId());
        if(watchList == null){
-           throw new Exception("WatchList not found");
+           watchList = this.createWatchList(user);
        }
        return  watchList;
     }
@@ -43,7 +43,7 @@ public class WatchListImpl implements WatchListService{
 
     @Override
     public Coin addItemToWatchList(Coin coin, User user) throws Exception {
-        WatchList watchList = this.findUserWatchList(user.getId());
+        WatchList watchList = this.findUserWatchList(user);
         List<Coin> coinList = watchList.getCoins();
 
         if(coinList.contains(coin)){
